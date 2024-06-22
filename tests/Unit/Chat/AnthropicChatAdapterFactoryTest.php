@@ -11,16 +11,16 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace ModelflowAi\AnthropicAdapter\Tests\Unit;
+namespace ModelflowAi\AnthropicAdapter\Tests\Unit\Chat;
 
 use ModelflowAi\Anthropic\ClientInterface;
 use ModelflowAi\Anthropic\Model;
-use ModelflowAi\AnthropicAdapter\AnthropicChatAdapterFactory;
-use ModelflowAi\AnthropicAdapter\Model\AnthropicChatModelAdapter;
+use ModelflowAi\AnthropicAdapter\Chat\AnthropicChatAdapter;
+use ModelflowAi\AnthropicAdapter\Chat\AnthropicChatAdapterFactory;
 use PHPUnit\Framework\TestCase;
 use Prophecy\PhpUnit\ProphecyTrait;
 
-class AnthropicAdapterFactoryTest extends TestCase
+class AnthropicChatAdapterFactoryTest extends TestCase
 {
     use ProphecyTrait;
 
@@ -36,6 +36,6 @@ class AnthropicAdapterFactoryTest extends TestCase
             'functions' => true,
             'priority' => 0,
         ]);
-        $this->assertInstanceOf(AnthropicChatModelAdapter::class, $adapter);
+        $this->assertInstanceOf(AnthropicChatAdapter::class, $adapter);
     }
 }

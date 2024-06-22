@@ -11,31 +11,31 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace ModelflowAi\AnthropicAdapter\Tests\Unit\Model;
+namespace ModelflowAi\AnthropicAdapter\Tests\Unit\Chat;
 
 use ModelflowAi\Anthropic\Client;
 use ModelflowAi\Anthropic\ClientInterface;
 use ModelflowAi\Anthropic\DataFixtures;
 use ModelflowAi\Anthropic\Model;
-use ModelflowAi\AnthropicAdapter\Model\AnthropicChatModelAdapter;
+use ModelflowAi\AnthropicAdapter\Chat\AnthropicChatAdapter;
 use ModelflowAi\ApiClient\Responses\MetaInformation;
 use ModelflowAi\ApiClient\Transport\Response\ObjectResponse;
 use ModelflowAi\ApiClient\Transport\Testing\MockResponseMatcher;
 use ModelflowAi\ApiClient\Transport\Testing\MockTransport;
 use ModelflowAi\ApiClient\Transport\Testing\PartialPayload;
 use ModelflowAi\ApiClient\Transport\Testing\StreamedResponse;
-use ModelflowAi\Core\Request\AIChatMessageCollection;
-use ModelflowAi\Core\Request\AIChatRequest;
-use ModelflowAi\Core\Request\Criteria\AIRequestCriteriaCollection;
-use ModelflowAi\Core\Request\Message\AIChatMessage;
-use ModelflowAi\Core\Request\Message\AIChatMessageRoleEnum;
-use ModelflowAi\Core\Response\AIChatResponse;
-use ModelflowAi\Core\Response\AIChatResponseStream;
-use ModelflowAi\Core\ToolInfo\ToolInfoBuilder;
+use ModelflowAi\Chat\Request\AIChatMessageCollection;
+use ModelflowAi\Chat\Request\AIChatRequest;
+use ModelflowAi\Chat\Request\Message\AIChatMessage;
+use ModelflowAi\Chat\Request\Message\AIChatMessageRoleEnum;
+use ModelflowAi\Chat\Response\AIChatResponse;
+use ModelflowAi\Chat\Response\AIChatResponseStream;
+use ModelflowAi\Chat\ToolInfo\ToolInfoBuilder;
+use ModelflowAi\DecisionTree\Criteria\CriteriaCollection;
 use PHPUnit\Framework\TestCase;
 use Prophecy\PhpUnit\ProphecyTrait;
 
-final class AnthropicChatModelAdapterTest extends TestCase
+final class AnthropicChatAdapterTest extends TestCase
 {
     use ProphecyTrait;
 
@@ -43,11 +43,11 @@ final class AnthropicChatModelAdapterTest extends TestCase
     {
         $client = $this->prophesize(ClientInterface::class);
 
-        $adapter = new AnthropicChatModelAdapter($client->reveal(), Model::CLAUDE_3_SONNET);
+        $adapter = new AnthropicChatAdapter($client->reveal(), Model::CLAUDE_3_SONNET);
 
         $request = new AIChatRequest(new AIChatMessageCollection(
             new AIChatMessage(AIChatMessageRoleEnum::USER, 'some text'),
-        ), new AIRequestCriteriaCollection(), [], [], [], fn () => null);
+        ), new CriteriaCollection(), [], [], [], fn () => null);
 
         $this->assertTrue($adapter->supports($request));
     }
@@ -56,11 +56,11 @@ final class AnthropicChatModelAdapterTest extends TestCase
     {
         $client = $this->prophesize(ClientInterface::class);
 
-        $adapter = new AnthropicChatModelAdapter($client->reveal(), Model::CLAUDE_3_SONNET);
+        $adapter = new AnthropicChatAdapter($client->reveal(), Model::CLAUDE_3_SONNET);
 
         $request = new AIChatRequest(new AIChatMessageCollection(
             new AIChatMessage(AIChatMessageRoleEnum::USER, 'User message'),
-        ), new AIRequestCriteriaCollection(), [
+        ), new CriteriaCollection(), [
             'test' => [$this, 'toolMethod'],
         ], [
             ToolInfoBuilder::buildToolInfo($this, 'toolMethod', 'test'),
@@ -82,9 +82,9 @@ final class AnthropicChatModelAdapterTest extends TestCase
         $request = new AIChatRequest(new AIChatMessageCollection(
             new AIChatMessage(AIChatMessageRoleEnum::SYSTEM, DataFixtures::MESSAGES_CREATE_REQUEST_RAW['messages'][0]['content']),
             new AIChatMessage(AIChatMessageRoleEnum::USER, DataFixtures::MESSAGES_CREATE_REQUEST_RAW['messages'][1]['content']),
-        ), new AIRequestCriteriaCollection(), [], [], [], fn () => null);
+        ), new CriteriaCollection(), [], [], [], fn () => null);
 
-        $adapter = new AnthropicChatModelAdapter($client, Model::CLAUDE_3_HAIKU, 100);
+        $adapter = new AnthropicChatAdapter($client, Model::CLAUDE_3_HAIKU, 100);
         $result = $adapter->handleRequest($request);
 
         $this->assertInstanceOf(AIChatResponse::class, $result);
@@ -110,9 +110,9 @@ final class AnthropicChatModelAdapterTest extends TestCase
         $request = new AIChatRequest(new AIChatMessageCollection(
             new AIChatMessage(AIChatMessageRoleEnum::SYSTEM, DataFixtures::MESSAGES_CREATE_REQUEST_RAW['messages'][0]['content']),
             new AIChatMessage(AIChatMessageRoleEnum::USER, DataFixtures::MESSAGES_CREATE_REQUEST_RAW['messages'][1]['content']),
-        ), new AIRequestCriteriaCollection(), [], [], ['streamed' => true], fn () => null);
+        ), new CriteriaCollection(), [], [], ['streamed' => true], fn () => null);
 
-        $adapter = new AnthropicChatModelAdapter($client, Model::CLAUDE_3_HAIKU, 100);
+        $adapter = new AnthropicChatAdapter($client, Model::CLAUDE_3_HAIKU, 100);
         $result = $adapter->handleRequest($request);
 
         $this->assertInstanceOf(AIChatResponseStream::class, $result);

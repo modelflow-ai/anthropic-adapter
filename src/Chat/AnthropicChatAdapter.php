@@ -11,29 +11,26 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace ModelflowAi\AnthropicAdapter\Model;
+namespace ModelflowAi\AnthropicAdapter\Chat;
 
 use ModelflowAi\Anthropic\ClientInterface;
 use ModelflowAi\Anthropic\Model;
 use ModelflowAi\Anthropic\Resources\MessagesInterface;
 use ModelflowAi\Anthropic\Responses\Messages\CreateStreamedResponse;
-use ModelflowAi\Core\Model\AIModelAdapterInterface;
-use ModelflowAi\Core\Request\AIChatRequest;
-use ModelflowAi\Core\Request\AIRequestInterface;
-use ModelflowAi\Core\Request\Message\AIChatMessage;
-use ModelflowAi\Core\Request\Message\AIChatMessageRoleEnum;
-use ModelflowAi\Core\Request\Message\ImageBase64Part;
-use ModelflowAi\Core\Request\Message\TextPart;
-use ModelflowAi\Core\Response\AIChatResponse;
-use ModelflowAi\Core\Response\AIChatResponseMessage;
-use ModelflowAi\Core\Response\AIChatResponseStream;
-use ModelflowAi\Core\Response\AIResponseInterface;
-use Webmozart\Assert\Assert;
+use ModelflowAi\Chat\Adapter\AIChatAdapterInterface;
+use ModelflowAi\Chat\Request\AIChatRequest;
+use ModelflowAi\Chat\Request\Message\AIChatMessage;
+use ModelflowAi\Chat\Request\Message\AIChatMessageRoleEnum;
+use ModelflowAi\Chat\Request\Message\ImageBase64Part;
+use ModelflowAi\Chat\Request\Message\TextPart;
+use ModelflowAi\Chat\Response\AIChatResponse;
+use ModelflowAi\Chat\Response\AIChatResponseMessage;
+use ModelflowAi\Chat\Response\AIChatResponseStream;
 
 /**
  * @phpstan-import-type Parameters from MessagesInterface
  */
-final readonly class AnthropicChatModelAdapter implements AIModelAdapterInterface
+final readonly class AnthropicChatAdapter implements AIChatAdapterInterface
 {
     public const EXPECTED_ROLES = [
         AIChatMessageRoleEnum::SYSTEM,
@@ -48,13 +45,8 @@ final readonly class AnthropicChatModelAdapter implements AIModelAdapterInterfac
     ) {
     }
 
-    /**
-     * @param AIChatRequest $request
-     */
-    public function handleRequest(AIRequestInterface $request): AIResponseInterface
+    public function handleRequest(AIChatRequest $request): AIChatResponse
     {
-        Assert::isInstanceOf($request, AIChatRequest::class);
-
         /** @var Parameters $parameters */
         $parameters = [
             'model' => $this->model->value,
